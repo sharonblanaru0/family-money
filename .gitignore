@@ -1,0 +1,5 @@
+# Family details (names, accounts) never go into the public repository.
+private/
+.claude/
+__pycache__/
+*.json.bak
