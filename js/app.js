@@ -681,7 +681,7 @@ function renderEdit() {
 
 function balancesHtml() {
   const v = S.vault, t0 = today();
-  if (!v.accounts.length) return `<div class="empty"><p>עוד אין חשבונות. מוסיפים אותם בלשונית "משפחה וחשבונות".</p></div>`;
+  if (!v.accounts.length) return `<div class="empty"><p>עוד אין חשבונות. מוסיפים אותם, או טוענים אותם מקובץ, בלשונית "משפחה וחשבונות".</p><button class="btn" type="button" data-act="edit-mode" data-mode="manage">למשפחה וחשבונות</button></div>`;
   const sorted = [...v.accounts].sort((a, b) => (M.staleDays(v, b, t0) ?? 1e9) - (M.staleDays(v, a, t0) ?? 1e9));
   return `
     <p class="lede" style="margin-top:14px">מעתיקים את היתרות מהאתרים. חשבון שלא ממלאים נשאר עם הערך האחרון שלו.</p>
@@ -720,7 +720,29 @@ function manageHtml() {
     </div>`).join('')}
     <button class="add" type="button" data-act="add-account">הוספת חשבון</button>
     <button class="add" type="button" data-act="add-property">הוספת נכס נדל״ן</button>
-    <p class="hint" style="margin-top:14px">שינויים כאן נשמרים במכשיר ומתפרסמים בלחיצה על "פרסום".</p>`;
+    <label class="add">טעינת בני משפחה וחשבונות מקובץ<input type="file" id="importStructure" accept=".json,application/json" hidden></label>
+    <p class="hint" style="margin-top:14px">שינויים כאן נשמרים במכשיר ומתפרסמים בלחיצה על "פרסום". טעינה מקובץ רק מוסיפה את מה שחסר, ולא משנה או מוחקת דבר קיים.</p>`;
+}
+
+// Adds the members and accounts from a structure file that aren't in the data yet (matched by id).
+async function importStructure(input) {
+  const f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  let fresh;
+  try { fresh = M.newVault(M.validateStructure(JSON.parse(await f.text()))); } catch { toast('הקובץ לא במבנה הנכון'); return; }
+  let kidsAdded = 0, accAdded = 0;
+  for (const m of fresh.members) {
+    if (m.id !== 'family' && !members().some(x => x.id === m.id)) { S.vault.members.push(m); kidsAdded++; }
+  }
+  const ids = new Set(members().map(m => m.id));
+  for (const a of fresh.accounts) {
+    if (!S.vault.accounts.some(x => x.id === a.id)) { S.vault.accounts.push(M.normAccount(a, ids)); accAdded++; }
+  }
+  if (!kidsAdded && !accAdded) { toast('כל מה שבקובץ כבר קיים'); return; }
+  S.dirty = true;
+  show('update');
+  toast(`נוספו ${kidsAdded} ילדים ו-${accAdded} חשבונות. לוחצים "פרסום" כדי לשמור`);
 }
 
 function saveBalances() {
@@ -1073,6 +1095,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   if (e.target.id === 'nFile') onStructureFile(e.target);
+  if (e.target.id === 'importStructure') importStructure(e.target);
   if (e.target.name === 'type' && e.target.form?.id === 'accForm') applyTypeFields(e.target.form);
 });
 $('#scrim').addEventListener('click', closeSheet);
