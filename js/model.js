@@ -6,11 +6,10 @@ export const TYPES = {
   trading:    {label: 'תיק מסחר',    group: 'תיקי מסחר',        liq: 'now'},
   gemel:      {label: 'גמל להשקעה',  group: 'קופות גמל להשקעה', liq: 'now'},
   hishtalmut: {label: 'קרן השתלמות', group: 'קרנות השתלמות',    liq: 'later'},
-  pension:    {label: 'פנסיה',       group: 'פנסיה',            liq: 'pension'},
   realestate: {label: 'נדל״ן',       group: 'נדל״ן',            liq: 'property'},
   mortgage:   {label: 'משכנתא',      group: 'התחייבויות',       liq: 'liability'},
 };
-export const TYPE_ORDER = ['checking', 'trading', 'gemel', 'hishtalmut', 'pension', 'realestate', 'mortgage'];
+export const TYPE_ORDER = ['checking', 'trading', 'gemel', 'hishtalmut', 'realestate', 'mortgage'];
 export const STALE_DAYS = 45;                      // balances older than this ask for an update
 export const staleLimit = a => a.type === 'realestate' ? 365 : STALE_DAYS;   // property values change slowly
 
@@ -66,6 +65,16 @@ export function newVault(structure = {}) {
   return {schema: 1, createdAt: now, updatedAt: now, members, accounts, entries: {}};
 }
 
+// Accounts of a type the app no longer tracks (pension) are dropped with their balances.
+// The data file loses them on the next publish from the owner's device.
+export function dropRetired(v) {
+  const gone = v.accounts.filter(a => !TYPES[a.type]);
+  if (!gone.length) return v;
+  v.accounts = v.accounts.filter(a => TYPES[a.type]);
+  for (const a of gone) delete v.entries[a.id];
+  return v;
+}
+
 export function validateStructure(s) {
   if (!s || typeof s !== 'object' || !Array.isArray(s.accounts) || !Array.isArray(s.members)) throw new Error('structure');
   return s;
@@ -94,7 +103,7 @@ export function liqOf(a, asOf) {
 }
 
 export function totals(v, asOf = FAR, today = new Date()) {
-  const t = {assets: 0, liab: 0, liq: {now: 0, later: 0, pension: 0, property: 0}, type: {}, owner: {}, fees: 0, count: 0};
+  const t = {assets: 0, liab: 0, liq: {now: 0, later: 0, property: 0}, type: {}, owner: {}, fees: 0, count: 0};
   const ref = asOf < FAR ? asOf : today;
   for (const a of v.accounts) {
     const e = latest(v, a, asOf);

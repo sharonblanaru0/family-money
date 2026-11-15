@@ -1,7 +1,7 @@
 // Offline support: keeps a copy of the app's own files so it opens without a connection.
 // It never touches requests to GitHub's API, and it never stores family data.
 
-const CACHE = 'family-money-v2';
+const CACHE = 'family-money-v3';
 const SHELL = [
   './', './index.html', './styles.css', './manifest.webmanifest',
   './js/app.js', './js/crypto.js', './js/store.js', './js/github.js', './js/model.js', './js/charts.js',

@@ -69,7 +69,6 @@ const signed = v => `<span class="amt" dir="ltr">${v >= 0 ? '+' : '-'}${NUM.form
 const LIQ = {
   now: {label: 'זמין עכשיו', c: 'var(--s1)'},
   later: {label: 'זמין בהמשך', c: 'var(--s2)'},
-  pension: {label: 'בפרישה', c: 'var(--s3)'},
   property: {label: 'נדל״ן', c: 'var(--prop)'},
 };
 
@@ -335,7 +334,7 @@ async function onUnlock() {
 }
 
 function startSession({device, key, env, vault, sha, source, fetchedAt}) {
-  S = {device, key, salt: C.saltOf(env), iterations: C.iterationsOf(env), vault, sha, source, fetchedAt, dirty: false};
+  S = {device, key, salt: C.saltOf(env), iterations: C.iterationsOf(env), vault: M.dropRetired(vault), sha, source, fetchedAt, dirty: false};
   ui.tab = 'overview';
   ui.kid = null;
   showGate(null);
@@ -395,7 +394,7 @@ async function refresh() {
       toast('הסיסמה שונתה במכשיר אחר. נועלים ופותחים מחדש עם הסיסמה החדשה');
       return;
     }
-    S.vault = await C.unseal(remote.env, S.key, 'vault');
+    S.vault = M.dropRetired(await C.unseal(remote.env, S.key, 'vault'));
     S.sha = remote.sha; S.source = 'remote'; S.fetchedAt = Date.now(); S.dirty = false;
     await Store.set('vault', {env: remote.env, sha: remote.sha, fetchedAt: S.fetchedAt});
     renderStatus();
@@ -468,7 +467,7 @@ function renderOverview() {
   const d = prev ? t.net - prev.v : null;
   const yearD = series.length > 1 ? t.net - series[0].v : null;
 
-  const groups = {now: [], later: [], pension: [], property: []};
+  const groups = {now: [], later: [], property: []};
   for (const a of v.accounts) {
     if (TYPES[a.type].liq === 'liability' || !M.latest(v, a)) continue;
     groups[M.liqOf(a, t0)].push(a);
@@ -479,7 +478,6 @@ function renderOverview() {
   const stops = [
     {k: 'now', when: 'היום', what: uniq(groups.now.map(a => TYPES[a.type].label))},
     {k: 'later', when: laterWhen, what: groups.later.map(typedTitle).join(', ')},
-    {k: 'pension', when: 'בפרישה', what: groups.pension.map(typedTitle).join(', ')},
   ].filter(s => t.liq[s.k]);
   let cum = 0;
 
@@ -581,8 +579,8 @@ function accountSheet(id) {
   if (!a) return;
   const e = M.latest(v, a), ser = M.seriesFor(v, [a], today());
   const hist = [...M.entries(v, a.id)].reverse().slice(0, 6);
-  const liqTxt = TYPES[a.type].liq === 'liability' ? 'התחייבות' : a.type === 'realestate' ? 'לא נזיל' : a.type === 'pension' ? 'בפרישה'
-    : M.liqOf(a, today()) === 'now' ? 'זמין עכשיו' : a.liqDate ? `מ${MON_FULL[M.parseDay(a.liqDate).getMonth()]} ${M.parseDay(a.liqDate).getFullYear()}` : 'בהמשך';
+  const liqTxt = TYPES[a.type].liq === 'liability' ? 'התחייבות' : a.type === 'realestate' ? 'לא נזיל'
+    :M.liqOf(a, today()) === 'now' ? 'זמין עכשיו' : a.liqDate ? `מ${MON_FULL[M.parseDay(a.liqDate).getMonth()]} ${M.parseDay(a.liqDate).getFullYear()}` : 'בהמשך';
   openSheet(`
     <div class="sh-head"><span class="mono">${esc(monoOf(a))}</span><div class="mid"><h3>${esc(titleOf(a))}</h3><div class="s">${esc(subOf(a))}</div></div>
       <button class="ibtn" type="button" data-act="close" aria-label="סגירה">${I.x}</button></div>
@@ -769,10 +767,10 @@ function saveBalances() {
 
 const FIELD_RULES = {
   inst: t => t !== 'realestate',
-  fee: t => ['trading', 'gemel', 'hishtalmut', 'pension'].includes(t),
-  dep: t => ['gemel', 'hishtalmut', 'pension'].includes(t),
+  fee: t => ['trading', 'gemel', 'hishtalmut'].includes(t),
+  dep: t => ['gemel', 'hishtalmut'].includes(t),
   liq: t => t === 'hishtalmut',
-  inactive: t => ['gemel', 'hishtalmut', 'pension'].includes(t),
+  inactive: t => ['gemel', 'hishtalmut'].includes(t),
 };
 function applyTypeFields(form) {
   const t = form.elements.type.value;

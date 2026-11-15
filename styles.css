@@ -1,9 +1,9 @@
-/* ---------- tokens: banknote paper + intaglio ink ---------- */
+/* ---------- tokens: white page + intaglio ink (light only, on every phone setting) ---------- */
 :root {
   color-scheme: light;
-  --paper: #ECF0EC; --sheet: #FAFBF8; --well: #E1E7E1;
+  --paper: #FFFFFF; --sheet: #F5F7F9; --well: #EAEEF2;
   --ink: #14213D; --ink-2: #4B5770; --ink-3: #7A8496;
-  --rule: #D3DAD3; --line: rgba(20,33,61,.12);
+  --rule: #DCE1E7; --line: rgba(20,33,61,.10);
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --prop: #7A8496;
   --up: #0B6B35; --down: #B42318;
   --warn: #E5A100; --warn-bg: #FAEFC8; --warn-ink: #553D00;
@@ -11,34 +11,6 @@
   --ok-bg: rgba(226,245,232,.94); --ok-bd: #BFE5CB; --ok-ink: #0B4F28; --ok-sub: #2E6B45; --ok-ic: #1E9E54;
   --wn-bg: rgba(255,243,204,.95); --wn-bd: #F2D27A; --wn-ink: #4A3600; --wn-sub: #6B5210; --wn-ic: #F5B014;
   --boy-bg: #DCEAFB; --boy-ink: #1C4F8F; --girl-bg: #FBE1EA; --girl-ink: #8E2B4E;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --paper: #0A101C; --sheet: #111A2B; --well: #1A2438;
-    --ink: #E6EBF3; --ink-2: #A9B3C6; --ink-3: #7C879B;
-    --rule: #1F2A3F; --line: rgba(230,235,243,.10);
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --prop: #8E99AD;
-    --up: #45C46F; --down: #F08A8A;
-    --warn-bg: #382C0D; --warn-ink: #F2D488;
-    --focus: #5598e7; --scrim: rgba(0,0,0,.6);
-    --ok-bg: rgba(15,48,30,.94); --ok-bd: #1F5C38; --ok-ink: #D3F3DF; --ok-sub: #9BD3AE; --ok-ic: #1E9E54;
-    --wn-bg: rgba(56,43,10,.95); --wn-bd: #6B5420; --wn-ink: #F7E2A8; --wn-sub: #D9C07A; --wn-ic: #F5B014;
-    --boy-bg: #1B2C45; --boy-ink: #9CC3F2; --girl-bg: #3D1E2B; --girl-ink: #F2A9C2;
-  }
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --paper: #0A101C; --sheet: #111A2B; --well: #1A2438;
-  --ink: #E6EBF3; --ink-2: #A9B3C6; --ink-3: #7C879B;
-  --rule: #1F2A3F; --line: rgba(230,235,243,.10);
-  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --prop: #8E99AD;
-  --up: #45C46F; --down: #F08A8A;
-  --warn-bg: #382C0D; --warn-ink: #F2D488;
-  --focus: #5598e7; --scrim: rgba(0,0,0,.6);
-  --ok-bg: rgba(15,48,30,.94); --ok-bd: #1F5C38; --ok-ink: #D3F3DF; --ok-sub: #9BD3AE; --ok-ic: #1E9E54;
-  --wn-bg: rgba(56,43,10,.95); --wn-bd: #6B5420; --wn-ink: #F7E2A8; --wn-sub: #D9C07A; --wn-ic: #F5B014;
-  --boy-bg: #1B2C45; --boy-ink: #9CC3F2; --girl-bg: #3D1E2B; --girl-ink: #F2A9C2;
 }
 
 /* ---------- base ---------- */
