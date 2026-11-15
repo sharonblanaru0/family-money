@@ -1,5 +1,8 @@
 # Family details (names, accounts) never go into the public repository.
 private/
+# Early design mockups: they name the family's banks and funds.
+family-finance-demo.html
+hero-sketches.html
 .claude/
 __pycache__/
 *.json.bak
